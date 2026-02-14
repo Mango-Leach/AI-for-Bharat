@@ -1,0 +1,88 @@
+# Digital Twin Configuration
+
+system:
+  name: "Indian Town Digital Twin"
+  version: "1.0.0"
+  timezone: "Asia/Kolkata"
+  update_interval_seconds: 60
+
+data_sources:
+  traffic:
+    enabled: true
+    sensors: 150
+    update_frequency: "30s"
+  
+  pollution:
+    enabled: true
+    monitors: 25
+    parameters: ["PM2.5", "PM10", "CO2", "NOx", "SO2"]
+    update_frequency: "5m"
+  
+  weather:
+    enabled: true
+    api_endpoint: "https://api.imd.gov.in"
+    update_frequency: "15m"
+  
+  water:
+    enabled: true
+    smart_meters: 5000
+    reservoirs: 3
+    update_frequency: "1h"
+  
+  agriculture:
+    enabled: true
+    crop_sensors: 200
+    satellite_refresh: "daily"
+    mandi_api: "https://api.data.gov.in/resource/mandi"
+  
+  market:
+    enabled: true
+    commodities: ["rice", "wheat", "vegetables", "dairy"]
+    update_frequency: "1h"
+
+storage:
+  timeseries:
+    type: "timescaledb"
+    host: "${TIMESCALE_HOST}"
+    port: 5432
+    retention_days: 365
+  
+  document:
+    type: "mongodb"
+    host: "${MONGO_HOST}"
+    port: 27017
+  
+  object:
+    type: "s3"
+    bucket: "${S3_BUCKET}"
+    region: "ap-south-1"
+
+ml_models:
+  traffic:
+    model_type: "lstm"
+    forecast_horizon: "2h"
+    retrain_frequency: "weekly"
+  
+  pollution:
+    model_type: "xgboost"
+    forecast_horizon: "24h"
+    retrain_frequency: "daily"
+  
+  water:
+    model_type: "prophet"
+    forecast_horizon: "7d"
+    retrain_frequency: "weekly"
+
+simulation:
+  agents: 50000
+  time_step: "1h"
+  scenarios: ["baseline", "high_growth", "climate_stress", "policy_intervention"]
+  monte_carlo_runs: 1000
+
+cloud:
+  provider: "aws"
+  region: "ap-south-1"
+  kubernetes:
+    cluster_name: "digital-twin-cluster"
+    node_count: 5
+    auto_scaling: true
